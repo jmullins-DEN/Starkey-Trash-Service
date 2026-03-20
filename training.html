@@ -87,7 +87,7 @@ tr.driver-row:hover td{background:rgba(232,160,32,0.08);}
 </div>
 <script>
 
-var GITHUB_URL = 'https://raw.githubusercontent.com/jmullins-DEN/Starkey-Trash-Service/main/training.xlsx';
+var GITHUB_URL = 'https://raw.githubusercontent.com/jmullins-DEN/starkey-trash-service/main/training.xlsx';
 var ALL_DATA   = [];
 
 
@@ -258,30 +258,35 @@ function fetchAndInit(){
   var xhr=new XMLHttpRequest();
   xhr.open('GET',GITHUB_URL,true);
   xhr.responseType='arraybuffer';
+  xhr.timeout=15000;
+  xhr.ontimeout=function(){
+    document.getElementById('upSt').textContent='GitHub request timed out — loading local data';
+    loadLocal();
+  };
   xhr.onload=function(){
     if(xhr.status===200){
       try{
         ALL_DATA=parseTrainingFile(xhr.response);
-        saveStored('Starkey-Trash-Service_training',ALL_DATA);
+        saveStored('starkey-trash-service_training',ALL_DATA);
         bar.textContent='\u2713 Synced: '+ALL_DATA.length+' training records';
         if(ALL_DATA.length)init();
       }catch(err){
         bar.style.color='#e05252';
         bar.textContent='Parse error: '+err.message;
-        ALL_DATA=loadStored('Starkey-Trash-Service_training');
+        ALL_DATA=loadStored('starkey-trash-service_training');
         if(ALL_DATA.length)init();
       }
     }else{
       bar.style.color='#f5a623';
       bar.textContent='GitHub error ('+xhr.status+') \u2014 using cached data';
-      ALL_DATA=loadStored('Starkey-Trash-Service_training');
+      ALL_DATA=loadStored('starkey-trash-service_training');
       if(ALL_DATA.length)init();
     }
   };
   xhr.onerror=function(){
     bar.style.color='#f5a623';
     bar.textContent='Network error \u2014 using cached data';
-    ALL_DATA=loadStored('Starkey-Trash-Service_training');
+    ALL_DATA=loadStored('starkey-trash-service_training');
     if(ALL_DATA.length)init();
   };
   xhr.send();
